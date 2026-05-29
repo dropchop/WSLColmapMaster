@@ -159,7 +159,13 @@ def extract_sequence(ffmpeg: str, video: Path, naming: FrameNaming, log,
         cmd += ["-frames:v", str(max_frames)]
     cmd += ["-start_number", str(naming.start_number), str(out_pattern)]
 
-    run(cmd, log, capture_output=True)
+    # check=False + raise (not sys.exit) so callers can isolate a bad file.
+    result = run(cmd, log, check=False, capture_output=True)
+    if result.returncode != 0:
+        raise RuntimeError(f"ffmpeg failed (exit {result.returncode}) on {video.name}: "
+                           f"{(result.stderr or '').strip()[:200]}")
     written = sorted(naming.out_dir.glob(naming.glob()))
+    if not written:
+        raise RuntimeError(f"ffmpeg produced no frames for {video.name}")
     log.info("   wrote %d frame(s) -> %s", len(written), naming.out_dir)
     return len(written)

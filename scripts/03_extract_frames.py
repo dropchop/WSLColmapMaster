@@ -85,11 +85,15 @@ def main() -> int:
         log.info("=== cam%02d: %s @ local start %.4fs (lag %.4fs) ===",
                  cam, video.name, local_start, lag)
         naming = scheme(ShotContext(out_root=images_dir, cam_index=cam))
-        n = extract_sequence(
-            ffmpeg, video, naming, log,
-            fps=cfg.fps, max_frames=cfg.n_frames,
-            start_seconds=local_start, duration_seconds=duration + 1.0,
-        )
+        try:
+            n = extract_sequence(
+                ffmpeg, video, naming, log,
+                fps=cfg.fps, max_frames=cfg.n_frames,
+                start_seconds=local_start, duration_seconds=duration + 1.0,
+            )
+        except RuntimeError as e:
+            log.error("cam%02d: frame extraction failed: %s", cam, e)
+            return 3
         if n < cfg.n_frames:
             log.warning("cam%02d: extracted %d frames, expected %d "
                         "(video may be too short past the start time)", cam, n, cfg.n_frames)
