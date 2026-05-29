@@ -1,0 +1,70 @@
+# 4C4D capture pipeline configuration.
+# Edit this once per session/scene. Scripts read it.
+
+# --- Paths ---
+# Root for the current session. All intermediate artifacts live under here.
+session_dir: ./session_001
+
+# Where you manually copied the SD card contents. Expected structure:
+#   raw_inputs/cam00/  GH010001.MP4  GH020001.MP4 ...
+#   raw_inputs/cam01/  ...
+#   raw_inputs/cam02/  ...
+#   raw_inputs/cam03/  ...
+raw_inputs_dir: ./raw_inputs
+
+# Reference stills folder. The 1 still-per-cam (from final video positions) and
+# the 8 additional roving stills go here. Naming doesn't matter; COLMAP reads them all.
+reference_stills_dir: ./reference_stills
+
+# Final 4C4D-format output directory.
+# After Stage 6 this is what gets pointed at by the 4C4D train.py.
+output_dataset_dir: ./output_dataset
+
+# 4C4D-side dataset and scene names (these become path segments)
+dataset_name: dyn4cam_custom
+scene_name: take_001
+
+# --- Cameras ---
+# Camera count. Paper uses 4; this pipeline assumes 4 throughout.
+n_cameras: 4
+
+# --- Capture parameters (must match what GoPros actually recorded) ---
+resolution:
+  width: 1920
+  height: 1080
+fps: 60
+# Number of frames to extract per cam. Paper uses 300 (= 5s at 60fps).
+n_frames: 300
+
+# --- Sync ---
+# Designated reference camera. Others are aligned to this one.
+sync_reference_cam: 0
+# Audio sample rate for cross-correlation. 48kHz matches GoPro native.
+sync_audio_sample_rate: 48000
+# Maximum expected offset between cameras, in milliseconds.
+# Cross-correlation search is bounded by this window for speed and to reject false peaks.
+sync_max_offset_ms: 3000
+
+# --- COLMAP ---
+# Camera model. OPENCV for GoPro in Linear lens mode (4 distortion coefficients).
+# Use OPENCV_FISHEYE if you shot in Wide/SuperView.
+colmap_camera_model: OPENCV
+# Whether to share intrinsics across cameras. False = each camera gets its own intrinsics.
+# Recommended False since each HERO 12 is a separate physical lens (slight per-unit variation).
+colmap_single_camera: false
+
+# --- MAtCha / MASt3R ---
+# Path to the cloned MAtCha repository (used by 05_mast3r_points.sh)
+matcha_repo: ../MAtCha
+# Number of sparse views. For a 4-cam capture this is 4.
+n_sparse: 4
+
+# --- Conda envs (names) ---
+conda_env_pipeline: pipeline
+conda_env_4c4d: 4c4d
+conda_env_matcha: matcha
+
+# --- Validation thresholds ---
+validate:
+  min_points3d: 1000          # Minimum dense points expected from MAtCha
+  max_image_size_mb: 10       # Sanity check per-frame PNG size

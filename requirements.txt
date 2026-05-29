@@ -1,0 +1,9 @@
+# Python dependencies for the pre-training pipeline scripts.
+# This is the `pipeline` env from RUNBOOK §5.
+# The 4C4D and MAtCha envs have their own separate dependency manifests.
+
+numpy>=1.24
+scipy>=1.11   # signal.correlate for sync
+pyyaml>=6.0   # config loading
+pillow>=10.0  # image resolution checks in stage 7
+tqdm>=4.66    # progress bars (used in some stages)
