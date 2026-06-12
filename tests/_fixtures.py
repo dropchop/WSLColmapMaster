@@ -125,7 +125,9 @@ def write_fake_colmap(bin_dir: Path) -> Path:
     """
     bin_dir.mkdir(parents=True, exist_ok=True)
     script = bin_dir / "colmap"
-    script.write_text(f'''#!/usr/bin/env python3
+    # Pin the shebang to the running interpreter (not PATH's `python3`) so the
+    # fake binary always has the same packages (e.g. PIL) as the test process.
+    script.write_text(f'''#!{sys.executable}
 import sys
 from pathlib import Path
 sys.path.insert(0, {str(SCRIPTS)!r})
