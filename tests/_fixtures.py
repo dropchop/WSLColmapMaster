@@ -125,10 +125,15 @@ def write_fake_colmap(bin_dir: Path) -> Path:
     """
     bin_dir.mkdir(parents=True, exist_ok=True)
     script = bin_dir / "colmap"
-    # Pin the shebang to the running interpreter (not PATH's `python3`) so the
-    # fake binary always has the same packages (e.g. PIL) as the test process.
-    script.write_text(f'''#!{sys.executable}
-import sys
+    impl = bin_dir / "colmap_impl.py"
+    # `colmap` is a tiny /bin/sh wrapper (fixed, space-free shebang) that execs
+    # the *running* interpreter (not PATH's `python3`) on the Python impl, so the
+    # fake binary always has the same packages (e.g. PIL) as the test process and
+    # survives interpreter paths that contain spaces.
+    script.write_text(
+        f'#!/bin/sh\nexec "{sys.executable}" "{impl}" "$@"\n'
+    )
+    impl.write_text(f'''import sys
 from pathlib import Path
 sys.path.insert(0, {str(SCRIPTS)!r})
 import _colmap_io as cio
