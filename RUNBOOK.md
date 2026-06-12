@@ -151,7 +151,7 @@ Audio-based sync alignment.
 5. Camera index `XX` is `00..03`. Frame index `YYYY` is `0000..0299` (zero-padded).
 6. PNG, not JPEG. The repo's example data uses PNG and lossless is preferable for SfM features.
 
-### Stage 4 — `04_colmap_solve.sh`
+### Stage 4 — `04_colmap_solve.py`
 Wraps COLMAP CLI:
 1. Build an `images_for_pose/` directory containing the reference stills (Stage 4.2 from this runbook) and the first frame of each video.
 2. `colmap feature_extractor` with the OPENCV camera model (4 distortion params).
@@ -221,7 +221,7 @@ This pipeline does not run the training command itself. You'll run it in the 4C4
 | Symptom | Likely cause | Action |
 |---|---|---|
 | `02_sync.py` reports offsets > 200ms variance | One camera started/stopped much earlier | Re-check shot log; trim source videos to common window manually |
-| `04_colmap_solve.sh` mapper produces <4 registered images | Too few reference photos, or non-overlapping views | Re-shoot reference stills with more overlap; verify Linear lens mode |
+| `04_colmap_solve.py` mapper produces <4 registered images | Too few reference photos, or non-overlapping views | Re-shoot reference stills with more overlap; verify Linear lens mode |
 | MAtCha OOMs | Too many images or too high resolution | Reduce input image resolution or count |
 | `07_validate_dataset.py` reports image dim ≠ intrinsic dim | Frame extraction at different size than COLMAP solve | Ensure both stages use the same source resolution (don't downsample one) |
 | Hot GoPros dropping framerate mid-take | Thermal throttling | Use external power, ventilate, shorter takes |

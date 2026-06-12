@@ -91,6 +91,20 @@ class Config:
     def colmap_workdir(self) -> Path:
         return self.session_dir / "colmap"
 
+    # --- Staging paths (intermediate artifacts before the final pack in stage 6) ---
+    def processed_dir(self) -> Path:
+        return self.session_dir / "processed" / self.scene_name
+
+    def processed_images_dir(self) -> Path:
+        return self.processed_dir() / "images"
+
+    def processed_sparse_dir(self) -> Path:
+        return self.processed_dir() / "sparse" / "0"
+
+    def frame_name(self, cam_idx: int, frame_idx: int) -> str:
+        """4C4D dataloader frame name: cam{XX}_{YYYY}.png (cam 00-, frame 0000-)."""
+        return f"cam{cam_idx:02d}_{frame_idx:04d}.png"
+
 
 def load_config(path: Path | None = None) -> Config:
     """Load pipeline.yaml. If `path` is None, use the default location."""
